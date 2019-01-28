@@ -2,20 +2,19 @@ version: '3.1'
 
 services:
   ui:
-      image: 'pvidal/bmq-frontend:latest'
+      image: 'paulvid/bmq-frontend:latest'
       volumes:
         - ../frontend:/usr/src/app
       ports:
-        - 3001:3001
+        - 3000:3000
       links:
         - api
-        - whoville
   api:
-    image: 'pvidal/bmq-backend:latest'
+    image: 'paulvid/bmq-backend:latest'
     volumes:
       - ../backend:/usr/src/app
     ports:
-      - 4001:4001
+      - 4000:4000
     links:
       - db
   db:

@@ -8,9 +8,9 @@ services:
     #links:
       #- backend
   backend:
-    image: 'pvidal/bmq-backend'
+    image: 'paulvid/bmq-backend'
     ports:
-      - 4001:4001
+      - 4000:4000
     links:
       - db
   db:

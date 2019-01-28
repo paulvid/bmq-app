@@ -2,14 +2,13 @@ version: '3.1'
 
 services:
   api:
-    image: 'josiahgoodson/cloudbreak-cuisine-backend'
+    image: 'paulvid/bmq-backend'
     volumes:
       - ./backend:/usr/src/app
     ports:
       - 4000:4000
     links:
       - db
-      - whoville
   db:
     image: postgres
     restart: always
@@ -24,9 +23,3 @@ services:
     restart: always
     ports:
       - 8080:8080
-  whoville:
-    image: 'chaffelson/whoville:latest'
-    volumes:
-      - ${PROFILE}:/profile.yml:ro
-    ports:
-      - 5000:5000

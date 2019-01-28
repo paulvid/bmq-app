@@ -22,8 +22,8 @@ class DefaultHeader extends Component {
       <React.Fragment>
         <AppSidebarToggler className="d-lg-none" display="md" mobile />
         <AppNavbarBrand className="bg-dark"
-          full={{ src: logo, width: 180, height: 45, alt: 'Cuisine Logo' }}
-          minimized={{ src: sygnet, width: 45, height: 45, alt: 'Cuisine Logo' }}
+          full={{ src: logo, width: 180, height: 45, alt: 'BMQ Logo' }}
+          minimized={{ src: sygnet, width: 45, height: 45, alt: 'BMQ Logo' }}
         ></AppNavbarBrand>
 
         <Nav className="ml-auto" navbar>
@@ -31,11 +31,7 @@ class DefaultHeader extends Component {
             <DropdownToggle nav>
               <img src={'../../assets/img/avatars/1.png'} className="img-avatar" alt="admin@bootstrapmaster.com" /> admin@hortonworks.com &nbsp; &nbsp;
             </DropdownToggle>
-            <DropdownMenu style={{ right: 'auto' }}>
-              <DropdownItem href="#/profiles"><i className="fa fa-cloud"></i> Profiles</DropdownItem>
-              <DropdownItem href="#/users/1"><i className="fa fa-user"></i> User Details</DropdownItem>
-              <DropdownItem onClick={e => this.props.onLogout(e)}><i className="fa fa-lock"></i> Logout</DropdownItem>
-            </DropdownMenu>
+
           </AppHeaderDropdown>
         </Nav>
       </React.Fragment>

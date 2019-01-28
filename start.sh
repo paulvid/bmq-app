@@ -15,9 +15,8 @@ docker-compose -f docker/dev-docker-compose.yml down
 docker-compose -f docker/test-docker-compose.yml down
 
 # Ensure containers are up to date
-docker pull chaffelson/whoville:latest
-docker pull pvidal/bmq-frontend:latest
-docker pull pvidal/bmq-backend:latest
+docker pull paulvid/bmq-frontend:latest
+docker pull paulvid/bmq-backend:latest
 
 if [ "$1" != "skipInit" ]
 then
@@ -26,7 +25,7 @@ then
     npm i frontend --prefix ./frontend/
  
     # Fix missing Linux package
-    docker run -d --name cuisine_frontend -v ${PWD}/frontend:/usr/src/app -t pvidal/bmq-frontend:latest
+    docker run -d --name cuisine_frontend -v ${PWD}/frontend:/usr/src/app -t paulvid/bmq-frontend:latest
     docker exec cuisine_frontend npm rebuild node-sass
     docker stop cuisine_frontend
     docker rm cuisine_frontend
