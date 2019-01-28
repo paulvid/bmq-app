@@ -1,0 +1,218 @@
+swagger: '2.0'
+info:
+  description: This is the backend for Cloudbreak Cuisine. 
+  version: 0.1.0
+  title: Cloudbreak Cuisine
+basePath: /api
+tags:
+  - name: library
+    description: Explore collection of items in Library
+schemes:
+  - http
+paths:
+  /library:
+    get:
+      tags:
+        - library
+      summary: Returns a list of all Library items
+      description: Library items will be returned as an array of JSON LibraryItem Objects
+      operationId: findLibraryItems
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/LibraryItem'
+        '400':
+          description: Invalid status value
+  /library/{itemId}:
+    get:
+      tags:
+      - library
+      summary: Get library item by ID
+      description: Returns a single library item
+      operationId: getLibraryItemById
+      produces:
+      - application/json
+      parameters:
+      - name: itemId
+        in: path
+        description: ID of library item to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/LibraryItem'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Library item not found
+  /services:
+    get:
+      tags:
+        - services
+      summary: Returns a list of all services
+      description: Services will be returned as an array of JSON LibraryItem Objects
+      operationId: getAllServices
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Service'
+        '400':
+          description: Invalid status value
+  /services/{serviceId}:
+    get:
+      tags:
+      - services
+      summary: Get service by id
+      description: Returns a single service
+      operationId: getServiceById
+      produces:
+      - application/json
+      parameters:
+      - name: serviceId
+        in: path
+        description: ID of service to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Service'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Service not found
+  /recipes:
+    get:
+      tags:
+        - recipes
+      summary: Returns a list of all recipes
+      description: Recipes will be returned as an array of JSON LibraryItem Objects
+      operationId: getAllRecipes
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Recipe'
+        '400':
+          description: Invalid status value
+  /recipes/{recipeId}:
+    get:
+      tags:
+      - recipes
+      summary: Get recipe by id
+      description: Returns a single recipe
+      operationId: getRecipeById
+      produces:
+      - application/json
+      parameters:
+      - name: recipeId
+        in: path
+        description: ID of recipe to return
+        required: true
+        type: integer
+        format: int64
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Recipe'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Recipe not found
+definitions:
+  LibraryItem:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+        example: Awesome Bundle
+      version:
+        type: string
+        example: Some version string
+      description:
+        type: string
+        example: My awesome bundle does cool stuff
+      image:
+        type: string
+      download_link:
+        type: string
+    xml:
+      name: LibraryItem
+  Service:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+      service_description:
+        type: string
+        example: This is my service
+      cluster:
+        type: integer
+      mandatory:
+        type: integer
+      extensible:
+        type: integer
+      display:
+        type: integer
+      img:
+        type: string
+      dependency:
+        type: string
+  Recipe:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+      serviceid:
+        type: integer
+      recipedescription:
+        type: string
+      addon_type:
+        type: string
+      recipe_type:
+        type: string
+      mandatory:
+        type: integer
+      display:
+        type: integer
+  ApiResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
+externalDocs:
+  description: Find out more about Cloudbreak Cuisine
+  url: 'https://github.com/josiahg/cloudbreak-cuisine'
