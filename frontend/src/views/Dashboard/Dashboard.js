@@ -38,7 +38,7 @@ function NifiProgressClassName(nifiState) {
   if (nifiState.toString() === "RUNNING") {
     class_name = "progress-xs my-3 bg-info"
   } else {
-    class_name = "progress-xs my-3 bg-yellow"
+    class_name = "progress-xs my-3 bg-secondary"
   }
 
 
@@ -54,7 +54,7 @@ function NifiDashboardClassName(nifiState) {
   if (nifiState.toString() === "RUNNING") {
     class_name = "text-white bg-success border-success"
   } else {
-    class_name = "text-white bg-warning border-warning"
+    class_name = "text-white bg-secondary border-secondary"
   }
   return (
     class_name
@@ -141,6 +141,22 @@ class Dashboard extends Component {
       cbUrl: '',
       nifiState: 'RUNNING'
     };
+  }
+  stopNifi = async e  => {
+
+    var callNifiStop= await fetch('http://localhost:4000/api/nifi/stop')
+    var nifiStop = await callNifiStop.json()
+
+
+    this.setState({nifiState: 'STOPPED'});
+  }
+
+  startNifi = async e  => {
+    this.setState({starting: !this.state.starting});
+    var callNifiStop= await fetch('http://localhost:4000/api/nifi/start')
+    var nifiStop = await callNifiStop.json()
+
+    this.setState({nifiState: 'RUNNING'});
   }
 
   deleteStack = async e  => {
@@ -244,6 +260,15 @@ class Dashboard extends Component {
     // const resWhoville = await initWhoville.json()
     // const initProfile = await fetch('http://localhost:4000/api/whoville/refreshprofile')
     // const resProfile = await initProfile.json()
+    var callNifiStatus= await fetch('http://localhost:4000/api/nifi/status')
+        var nifiStatus = await callNifiStatus.json()
+        if(nifiStatus['controllerStatus'].activeThreadCount.toString() === '0'){
+            
+            this.setState({nifiState: 'STOPPED'});
+        } else {
+            this.setState({started: 'RUNNING'});
+        }
+
    
     const initWhovilleProfile = await fetch('http://localhost:4000/api/cloudbreak/profile')
     const whovilleProfile = await initWhovilleProfile.json()
@@ -381,32 +406,15 @@ class Dashboard extends Component {
                       <DropdownMenu right>
                         {/* <DropdownItem><i className="icon-eyeglass"></i>&nbsp;Details</DropdownItem> */}
                         <DropdownItem id={'bmq-local'} href={'http://localhost:9090/nifi'} target="_blank"><i className="fa fa-external-link"></i>&nbsp;Go to Nifi</DropdownItem>
-                        <DropdownItem name={'bmq-local'} id={'AVAILABLE'} onClick={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}><i className="fa fa-stop"></i>&nbsp;Stop</DropdownItem>
+                        {this.state.nifiState.toString() === 'RUNNING' ?
+                         (<DropdownItem name={'bmq-local'} id={this.state.nifiState} onClick={this.stopNifi.bind(this)}><i className="fa fa-stop"></i>&nbsp;Stop</DropdownItem>)
+                         : (<DropdownItem name={'bmq-local'} id={this.state.nifiState} onClick={this.startNifi.bind(this)}><i className="fa fa-play"></i>&nbsp;Start</DropdownItem>)}
                       </DropdownMenu>
                     </Dropdown>
                   </ButtonGroup>
                   <div className="text-value">{'bmq-local'}</div>
                   <div>{'Status: ' + this.state.nifiState}</div>
-                  <Modal isOpen={this.state['modaldelete'+'bmq-local']}
-                       className={'modal-danger' + this.props.className}>
-                   <ModalBody>
-                  <h3>Stopping Cluster... <i className='fa fa-spinner fa-spin'></i></h3>
-                  </ModalBody>
-                  <ModalFooter>
-                  <Button color="primary" onClick={this.refreshPage.bind(this)}>Refresh Dashboard <i className="fa fa-long-arrow-right"></i></Button>
-                  </ModalFooter>
-                </Modal>
-                  <Modal isOpen={this.state['modal'+'bmq-local']} toggle={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}
-                       className={'modal-danger ' + this.props.className}>
-                  <ModalHeader toggle={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}>Stopping Cluster</ModalHeader>
-                  <ModalBody>
-                  <h3>Are you sure you want to stop this cluster?</h3>
-                  </ModalBody>
-                  <ModalFooter>
-                  <Button color='secondary' onClick={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}><i className="icon-ban"></i>&nbsp; Cancel</Button>
-                    <Button name={'bmq-local'}  color='danger' ><i className="fa fa-stop"></i>&nbsp; Stop Cluster</Button>
-                  </ModalFooter>
-                </Modal>
+ 
                 </CardBody>
                 <div className="chart-wrapper" style={{ height: '20px', margin: '20px' }}>
                   <Progress className={NifiProgressClassName(this.state.nifiState)} color='white' value='100' />

@@ -11,5 +11,7 @@ router.use('/dashboard', require('./dashboard'));
 router.use('/components', require('./components'));
 router.use('/generator', require('./generator'));
 router.use('/cloudbreak', require('./cloudbreak'));
+router.use('/statistics', require('./statistics'));
+router.use('/nifi', require('./nifi'));
 
 module.exports = router;

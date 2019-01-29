@@ -30,7 +30,7 @@ export default {
     },
     {
       name: 'Monitor',
-      url: '/monitor',
+      url: '/dashboard',
       icon: 'icon-speedometer',
     },
     {

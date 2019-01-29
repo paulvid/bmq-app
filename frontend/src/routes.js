@@ -27,6 +27,7 @@ const ZeppelinNotes = React.lazy(() => import('./views/ZeppelinNotes/ZeppelinNot
 const AddZeppelinNote = React.lazy(() => import('./views/ZeppelinNotes/AddZeppelinNote'));
 const SQLScripts = React.lazy(() => import('./views/SQLScripts/SQLScripts'));
 const AddSQLScript = React.lazy(() => import('./views/SQLScripts/AddSQLScript'));
+const History = React.lazy(() => import('./views/History/History'));
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
 const routes = [
@@ -54,6 +55,7 @@ const routes = [
   { path: '/library/:id', exact: true, name: 'Local Bundle Details', component: LibraryItem },
   { path: '/whoville', exact: true, name: 'Whoville Library', component: Whoville },
   { path: '/whoville/:id', exact: true, name: 'Whoville Bundle Details', component: WhovilleItem },
+  { path: '/history', exact: true, name: 'History', component: History },
 ];
 
 export default routes;
