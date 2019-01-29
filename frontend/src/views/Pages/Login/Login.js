@@ -12,10 +12,10 @@ class Login extends Component {
                 <Card className="text-white bg-img py-5 d-md-down-none border-0 rounded-0" width="30%">
                   <CardBody className="text-center">
 
-                    <div border-left="1px solid white">
-                      <img alt=''src="../../assets/img/cuisine/hwx_logo_white.png" height="232px" width="300px" />
+                    <div >
+                      <img alt=''src="../../assets/img/cuisine/cloudera-logo-white.png" height="150px" width="300px" /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                      <span ><img alt='' className="img-border-left" src="../../assets/img/brand/long_logo.png" height="75px" width="340px" border-left="1px solid white" /></span>
+                      <span ><img alt='' className="img-border-left" src="../../assets/img/brand/long_logo.png" height="75px" width="340px" /></span>
                     </div>
 
                   </CardBody>
@@ -43,7 +43,7 @@ class Login extends Component {
                       </InputGroup>
                       <Row>
                         <Col xs="6">
-                          <Button color="success" className="px-4" href="#/dashboard">Login</Button>
+                          <Button color="success" className="px-4" href="#/history">Login</Button>
                         </Col>
                       </Row>
                     </Form>
