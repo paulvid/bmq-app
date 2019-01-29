@@ -2,6 +2,20 @@ var router = require('express').Router();
 var getDb = require('../../pg-db').getDb;
 var db = getDb();
 
+
+
+router.route('/profile').get((req, res) => {
+  db.any('select * from cloudbreak_cuisine.cloudbreak_server')
+  .then(data => {
+      res.json(data);
+  })
+  .catch(error => {
+      console.log('ERROR:', error)
+  })
+
+  
+});
+
 router.route('/gettoken').post((req2, res) => {
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
@@ -93,6 +107,49 @@ router.route('/delete/recipe').post((req2, res) => {
 
     
 });
+
+router.route('/delete/stack').post((req2, res) => {
+  process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+  var request = require("request");
+
+  console.log("ECHO" + req2.body.token );
+  console.log('https://'+ req2.body.cb_url +'/v1/stacks/' + req2.body.id)
+  var options = { method: 'DELETE',
+    url: 'https://'+ req2.body.cb_url +'/cb/api/v1/stacks/' + req2.body.id,
+    headers: 
+     { 
+      Authorization: 'Bearer ' + req2.body.token,
+      'Content-Type': 'application/json' }};
+
+
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+    
+      res.json(body);
+
+
+  });
+
+  
+  
+});
+
+
+router.route('/launch/stack').get((req2, res) => {
+
+  var request = require("request");
+
+  var options = { method: 'GET',
+    url: 'http://docker.for.mac.localhost:8010/launch',
+    headers: { 'cache-control': 'no-cache' } };
+  
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+    res.json(body)
+    //console.log(body);
+  });
+});
+
 
 router.route('/push/recipe').post((req2, res) => {
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;

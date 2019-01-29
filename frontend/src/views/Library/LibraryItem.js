@@ -26,37 +26,36 @@ class LibraryItem extends Component {
       libraryItemContent: [],
       delete: false,
       deleted: false,
+      deploying: false,
       confirmPush: false,
       saving: false,
       saved: false,
       destination: '',
-      cb_url: ''
+      cb_url: '',
+      hi: ''
     }
   }
   confirmPushBundle() {
     this.setState({confirmPush: !this.state.confirmPush})
 
   }
-  confirmDelete() {
+  confirmLaunch() {
     this.setState({delete: !this.state.delete})
 
   }
+
+ 
+
 
   pushBundle = async event => {
     this.setState({confirmPush: !this.state.confirmPush,
                   saving: !this.state.saving,
                   destination: event.target.name})
                   if (event.target.name.toString() === 'Cloudbreak') {
-    const initWhoville = await fetch('http://localhost:4000/api/whoville/refresh')
-    const resWhoville = await initWhoville.json()
-    const initProfile = await fetch('http://localhost:4000/api/whoville/refreshprofile')
-    const resProfile = await initProfile.json()
-    
-    const initWhovilleProfile = await fetch('http://localhost:4000/api/profiles/whoville');
+                    const initWhovilleProfile = await fetch('http://localhost:4000/api/cloudbreak/profile')
     const whovilleProfile = await initWhovilleProfile.json()
-
-    this.setState({cb_url: 'http://'+whovilleProfile[0].cb_url.toString()})
-    const initCBToken = await fetch('http://localhost:4000/api/dashboard/gettoken', {
+    this.setState({cb_url: whovilleProfile[0].cb_url.toString()})
+    var initCBToken = await fetch('http://localhost:4000/api/dashboard/gettoken', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -64,11 +63,12 @@ class LibraryItem extends Component {
       },
       body: JSON.stringify({
         user: whovilleProfile[0].default_email.toString(),
-        password: whovilleProfile[0].default_pwd.toString(),
+        password: whovilleProfile[0].default_password.toString(),
         cb_url: whovilleProfile[0].cb_url.toString()
       })
     })
-    const CBToken = await initCBToken.json()
+    var CBToken = await initCBToken.json()
+
 
     // Pushing Blueprint
     var content=this.state.libraryItemContent.filter((content) => (content.type.toString() === 'BLUEPRINT'))
@@ -165,21 +165,19 @@ class LibraryItem extends Component {
   }
 
 
-  deleteBundle = async event => {
+  launchBundle = async event => {
     
-
-    var id=event.target.id;
-    var delContent = await fetch('http://localhost:4000/api/generator/delete/bundle_contents/' + id)
-    var confirmC = await delContent.json()
-    
-    var delDeps = await fetch('http://localhost:4000/api/generator/delete/bundle_dependencies/' + id)
-    var confirmD = await delDeps.json()
-
-
-    var delB = await fetch('http://localhost:4000/api/generator/delete/bundle/' +id)
-    var confirmB = await delB.json()
-
     this.setState({delete: !this.state.delete,
+      deploying: !this.state.deploying})
+
+    
+    var id=event.target.id;
+    const nifiCall = await fetch('http://localhost:4000/api/cloudbreak/launch/stack')
+    const nifiRes = await nifiCall.json()
+   
+   // alert(nifiRes)
+
+    this.setState({
       deleted: !this.state.deleted})
 
   }
@@ -266,38 +264,40 @@ class LibraryItem extends Component {
               <Card className="card-accent-success">
                 <CardBody >
                 <Modal isOpen={this.state.delete} toggle={() => { this.setState({ delete: !this.state.delete }); }}
-                       className={'modal-danger ' + this.props.className}>
-                  <ModalHeader toggle={() => { this.setState({ delete: !this.state.delete}); }}>Delete Confirmation</ModalHeader>
+                       className={'modal-primary ' + this.props.className}>
+                  <ModalHeader toggle={() => { this.setState({ delete: !this.state.delete}); }}>Deploy Confirmation</ModalHeader>
                   <ModalBody>
-                  <h3>Are you sure you want to delete this bundle?</h3>
+                  <h3>Are you sure you want to launch this bundle?</h3>
                   </ModalBody>
                   <ModalFooter>
                   <Button color='secondary' onClick={() => { this.setState({ delete: !this.state.delete}); }}><i className="icon-ban"></i>&nbsp; Cancel</Button>
-                  <Button color='danger' id={this.state.libraryItem.id} onClick={this.deleteBundle.bind(this)}><i className="fa fa-remove"></i>&nbsp; Delete</Button>
+                  <Button color='primary' id={this.state.libraryItem.id} onClick={this.launchBundle.bind(this)}><i className="fa fa-upload"></i>&nbsp; Deploy</Button>
                    </ModalFooter>
                 </Modal>
-                <Modal isOpen={this.state.deleted} toggle={() => { this.setState({ deleted: !this.state.deleted }); }}
-                       className={'modal-sucess ' + this.props.className}>
+
+                <Modal isOpen={this.state.deploying} toggle={this.state.deleted ?  () => { this.setState({ deploying: !this.state.deploying, saved: !this.state.deleted }); } : ''}
+                       className={this.state.deleted ? 'modal-primary ' + this.props.className : 'modal-secondary ' + this.props.className}>
+                       <ModalHeader >{this.state.deleted ? 'Bundle Pushed!' : 'Pushing bundle ... '} <i className={this.state.deleted ? '':'fa fa-spinner fa-spin'}></i></ModalHeader>
                   
                   <ModalBody>
-                  <h3>Bundle deleted!</h3>
+                   <h3>{this.state.saved ? 'Bundle Deployed ' : 'Deploying bundle ... '}  <i className={this.state.deleted ? 'fa fa-check': 'fa fa-spinner fa-spin'}></i> </h3>
                   </ModalBody>
                   <ModalFooter>
-                  <Button color='success' href="#/library">OK <i className="fa fa-long-arrow-right"></i></Button>
+                  <Button color={this.state.deleted ? 'primary' : 'secondary'} href="#/dashboard" disabled={!this.state.deleted}>Go to Dashboard <i className="fa fa-long-arrow-right"></i></Button>
                    </ModalFooter>
                 </Modal>
+        
 
 
                 <Modal isOpen={this.state.confirmPush} toggle={() => { this.setState({ confirmPush: !this.state.confirmPush }); }}
                        className={'modal-success ' + this.props.className}>
                   <ModalHeader toggle={() => { this.setState({ confirmPush: !this.state.confirmPush}); }}>Push Confirmation</ModalHeader>
                   <ModalBody>
-                  <h3>Where do you want to push your local bundle?</h3>
+                  <h3>Are you sure you want to push your local bundle assets to Cloudbreak?</h3>
                   </ModalBody>
                   <ModalFooter>
                   <Button color='secondary' onClick={() => { this.setState({ confirmPush: !this.state.confirmPush}); }}><i className="icon-ban"></i>&nbsp; Cancel</Button>
-                  <Button color='success' id={this.state.libraryItem.id} name="Cloudbreak" onClick={this.pushBundle.bind(this)}><i className="fa fa-cloud"></i>&nbsp; Cloudbreak</Button>
-                  <Button color='success' id={this.state.libraryItem.id} name="Whoville" disabled><i className="fa fa-building-o"></i>&nbsp; Whoville</Button>
+                  <Button color='success' id={this.state.libraryItem.id} name="Cloudbreak" onClick={this.pushBundle.bind(this)}><i className="fa fa-clou-upload"></i>&nbsp; Push</Button>
                    </ModalFooter>
                 </Modal>
 
@@ -309,7 +309,7 @@ class LibraryItem extends Component {
                    <h3>Pushing to {this.state.destination} ... <i className={this.state.saved ? 'fa fa-check': 'fa fa-spinner fa-spin'}></i> </h3>
                   </ModalBody>
                   <ModalFooter>
-                  <Button color={this.state.saved ? 'success' : 'secondary'} href={this.state.destination === "Cloudbreak" ? this.state.cb_url+'/sl' : "#/whoville"} target={this.state.destination === "Cloudbreak" ? "_blank" : ""} disabled={!this.state.saved}>Go to {this.state.destination} <i className="fa fa-long-arrow-right"></i></Button>
+                  <Button color={this.state.saved ? 'success' : 'secondary'} href={this.state.destination === "Cloudbreak" ? 'https://'+this.state.cb_url+'/sl' : "#/whoville"} target={this.state.destination === "Cloudbreak" ? "_blank" : ""} disabled={!this.state.saved}>Go to {this.state.destination} <i className="fa fa-long-arrow-right"></i></Button>
                    </ModalFooter>
                 </Modal>
 
@@ -324,26 +324,22 @@ class LibraryItem extends Component {
                   <table width="100%">
                     <tbody>
                       <tr>
-                        <td align="center" width="25%">
-                          <Button outline color="success" href="#/library">
-                            <i className="fa fa-long-arrow-left" ></i>&nbsp;Back
-                    </Button>
-                        </td>
                         <td align="center">
-                          <Button id={this.state.libraryItem.id} color="success" width="25%" href={'http://localhost:4000/api/library/item/' + this.state.libraryItem.id + '/download'}>
+                          <Button id={this.state.libraryItem.id} color="warning" width="33%" href={'http://localhost:4000/api/library/item/' + this.state.libraryItem.id + '/download'}>
                             <i className="fa fa-download"></i>&nbsp;Download
                     </Button>
                         </td>
-                        <td align="center" width="25%">
+                        <td align="center" width="33%">
                           <Button  id={this.state.libraryItem.id} color="success" onClick={this.confirmPushBundle.bind(this)}>
                             <i className="fa fa-cloud-upload" ></i>&nbsp;Push
                     </Button>
                         </td>
-                        <td align="center" width="25%">
-                          <Button  id={this.state.libraryItem.id} color="danger" disabled={this.state.libraryItem.id < 2} onClick={this.confirmDelete.bind(this)}>
-                            <i className="fa fa-remove"></i>&nbsp;Delete
+                        <td align="center" width="33%">
+                          <Button  id={this.state.libraryItem.id} color="primary" onClick={this.confirmLaunch.bind(this)}>
+                            <i className="fa fa-upload" ></i>&nbsp;{this.state.hi}Deploy
                     </Button>
                         </td>
+   
                       </tr>
                     </tbody>
                   </table>
@@ -369,7 +365,7 @@ class LibraryItem extends Component {
                 <NavItem>
                   <NavLink
                     active={this.state.activeTab[3] === '3'}
-                    onClick={() => { this.toggle(3, '3'); }} ><h3>Yaml</h3>
+                    onClick={() => { this.toggle(3, '3'); }} ><h3>Template</h3>
                   </NavLink>
                 </NavItem>
               </Nav>

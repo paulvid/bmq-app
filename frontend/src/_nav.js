@@ -2,7 +2,7 @@ export default {
   items: [
     {
       title: true,
-      name: 'Dashboard',
+      name: 'Statistics',
       wrapper: {            // optional wrapper object
         element: '',        // required valid HTML5 element tag
         attributes: {}        // optional valid JS object with JS API naming ex: { className: "my-class", style: { fontFamily: "Verdana" }, id: "my-id"}
@@ -21,7 +21,7 @@ export default {
     },
     {
       title: true,
-      name: 'Model Training',
+      name: 'Infrastructure',
       wrapper: {            // optional wrapper object
         element: '',        // required valid HTML5 element tag
         attributes: {}        // optional valid JS object with JS API naming ex: { className: "my-class", style: { fontFamily: "Verdana" }, id: "my-id"}
@@ -29,14 +29,14 @@ export default {
       class: ''             // optional class names space delimited list for title item ex: "text-center"
     },
     {
-      name: 'Library',
-      url: '/library',
-      icon: 'fa fa-book',
-    },
-    {
       name: 'Monitor',
       url: '/monitor',
       icon: 'icon-speedometer',
+    },
+    {
+      name: 'Bundle',
+      url: '/library/2',
+      icon: 'fa fa-book',
     }
     
   ],

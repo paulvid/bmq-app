@@ -1,0 +1,104 @@
+{
+  "general": {
+    "name": "",
+    "credentialName": "pvi-credential"
+  },
+  "placement": {
+    "availabilityZone": "us-west-1a",
+    "region": "us-west-1"
+  },
+  "parameters": {},
+  "inputs": {},
+  "customDomain": {
+    "clusterNameAsSubdomain": false,
+    "hostgroupNameAsHostname": false
+  },
+  "tags": {
+    "userDefinedTags": {}
+  },
+  "instanceGroups": [
+    {
+      "nodeCount": 1,
+      "group": "master",
+      "type": "GATEWAY",
+      "parameters": {},
+      "template": {
+        "volumeCount": 1,
+        "volumeSize": 100,
+        "rootVolumeSize": 50,
+        "parameters": {
+          "encrypted": false
+        },
+        "volumeType": "standard",
+        "instanceType": "m5.2xlarge"
+      },
+      "securityGroup": {
+        "securityRules": [
+          {
+            "subnet": "68.238.247.254/32",
+            "ports": "1-65535",
+            "protocol": "tcp"
+          },
+          {
+            "subnet": "0.0.0.0/0",
+            "ports": "22",
+            "protocol": "tcp"
+          },
+          {
+            "subnet": "0.0.0.0/0",
+            "ports": "9443",
+            "protocol": "tcp"
+          },
+          {
+            "subnet": "0.0.0.0/0",
+            "ports": "443",
+            "protocol": "tcp"
+          }
+        ]
+      },
+      "recipeNames": [
+        "poci-15-bmq-zeppelin-setup",
+        "pras-14-bmq-rdbms-setup"
+      ],
+      "recoveryMode": "MANUAL"
+    }
+  ],
+  "stackAuthentication": {
+    "publicKeyId": "field"
+  },
+  "network": {
+    "parameters": {
+      "subnetId": "subnet-0e943a261b9e14625",
+      "vpcId": "vpc-0076a88d006244ec8"
+    }
+  },
+  "imageSettings": {
+    "imageCatalog": "cloudbreak-default",
+    "imageId": "69db7e20-f3ac-4d45-6f95-39204e70ddcf"
+  },
+  "cluster": {
+    "emailNeeded": false,
+    "rdsConfigNames": [],
+    "ambari": {
+      "blueprintName": "bp-bmq-ephemeral-data-science",
+      "enableSecurity": false,
+      "userName": "admin",
+      "password": "Be@stM0de",
+      "ambariStackDetails": {
+        "stack": "HDP",
+        "version": "3.1",
+        "stackRepoId": "HDP",
+        "enableGplRepo": false,
+        "verify": false,
+        "repositoryVersion": "3.1.0.0-78",
+        "versionDefinitionFileUrl": "http://public-repo-1.hortonworks.com/HDP/centos7/3.x/updates/3.1.0.0/HDP-3.1.0.0-78.xml",
+        "mpacks": []
+      },
+      "ambariRepoDetailsJson": {
+        "version": "2.7.3.0",
+        "baseUrl": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.3.0",
+        "gpgKeyUrl": "http://public-repo-1.hortonworks.com/ambari/centos7/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins"
+      }
+    }
+  }
+}

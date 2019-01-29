@@ -31,6 +31,38 @@ function ProgressClassName(state) {
     class_name
   )
 }
+
+function NifiProgressClassName(nifiState) {
+  var class_name = "progress-xs my-3 bg-info"
+
+  if (nifiState.toString() === "RUNNING") {
+    class_name = "progress-xs my-3 bg-info"
+  } else {
+    class_name = "progress-xs my-3 bg-yellow"
+  }
+
+
+  return (
+    class_name
+  )
+
+}
+
+function NifiDashboardClassName(nifiState) {
+  var class_name = "text-white bg-primary border-primary"
+
+  if (nifiState.toString() === "RUNNING") {
+    class_name = "text-white bg-success border-success"
+  } else {
+    class_name = "text-white bg-warning border-warning"
+  }
+  return (
+    class_name
+  )
+}
+
+
+
 function DashboardClassName(state) {
   var class_name = "text-white bg-primary border-primary"
 
@@ -50,12 +82,7 @@ function DashboardClassName(state) {
   )
 }
 
-/*function LibraryLink(bundle_id) {
-  var link = '#/library/' + bundle_id
-  return (
-    link
-  )
-}*/
+
 
 function DashboardItemText(props) {
   const dashboardItem = props.dashboardItem
@@ -109,17 +136,34 @@ class Dashboard extends Component {
       clusterData: [],
       loading: true,
       modal: false,
-      deletion: false
+      deletion: false,
+      cbToken: '',
+      cbUrl: '',
+      nifiState: 'RUNNING'
     };
   }
 
-  deleteStack = (e) => {
+  deleteStack = async e  => {
     
-    this.setState({['modal'+e.target.id]: !this.state['modal'+e.target.id]})
-      fetch('http://localhost:4000/api/whoville/deletestack/' + e.target.id)
-          .then(response => response.json())
-          .catch(err => console.error(this.props.url, err.toString()))
+    this.setState({['modal'+e.target.name]: !this.state['modal'+e.target.name],
+                  ['modaldelete'+e.target.name]: !this.state['modaldelete'+e.target.name]})
+    
+    var a = await  fetch('http://localhost:4000/api/cloudbreak/delete/stack/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: this.state.cbToken,
+          cb_url: this.state.cbUrl,
+          id: e.target.id
+        })
+      })
+     var b = await a.json()
 
+
+          this.setState({['modaldelete'+e.target.id]: !this.state['modaldelete'+e.target.id]})
       
   }
 
@@ -144,7 +188,7 @@ class Dashboard extends Component {
   }
 
   getClusterData() {
-    fetch('http://localhost:4000/api/profiles/whoville')
+    fetch('http://localhost:4000/api/cloudbreak/profile')
       .then(response => response.json())
       .then(profileData => {
         fetch('http://localhost:4000/api/dashboard/gettoken', {
@@ -196,15 +240,15 @@ class Dashboard extends Component {
   }
 
   async componentDidMount(){
-    const initWhoville = await fetch('http://localhost:4000/api/whoville/refresh')
-    const resWhoville = await initWhoville.json()
-    const initProfile = await fetch('http://localhost:4000/api/whoville/refreshprofile')
-    const resProfile = await initProfile.json()
-    
-    const initWhovilleProfile = await fetch('http://localhost:4000/api/profiles/whoville');
+    // const initWhoville = await fetch('http://localhost:4000/api/whoville/refresh')
+    // const resWhoville = await initWhoville.json()
+    // const initProfile = await fetch('http://localhost:4000/api/whoville/refreshprofile')
+    // const resProfile = await initProfile.json()
+   
+    const initWhovilleProfile = await fetch('http://localhost:4000/api/cloudbreak/profile')
     const whovilleProfile = await initWhovilleProfile.json()
-
-    const initCBToken = await fetch('http://localhost:4000/api/dashboard/gettoken', {
+    
+    var initCBToken = await fetch('http://localhost:4000/api/dashboard/gettoken', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -212,13 +256,14 @@ class Dashboard extends Component {
       },
       body: JSON.stringify({
         user: whovilleProfile[0].default_email.toString(),
-        password: whovilleProfile[0].default_pwd.toString(),
+        password: whovilleProfile[0].default_password.toString(),
         cb_url: whovilleProfile[0].cb_url.toString()
       })
     })
-    const CBToken = await initCBToken.json()
-   
-    const initClusterData = await fetch('http://localhost:4000/api/dashboard/getclusters', {
+    var CBToken = await initCBToken.json()
+    this.setState({cbToken: CBToken,
+                  cbUrl: whovilleProfile[0].cb_url.toString()})
+    var initClusterData = await fetch('http://localhost:4000/api/dashboard/getclusters', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -229,7 +274,8 @@ class Dashboard extends Component {
         cb_url: whovilleProfile[0].cb_url.toString()
       })
     })
-    const fetchedClusterData = await initClusterData.json()
+    var fetchedClusterData = await initClusterData.json()
+
     this.setState({ clusterData: fetchedClusterData, loading: false})
 
     // fetch('http://localhost:4000/api/profiles/whoville')
@@ -303,7 +349,7 @@ class Dashboard extends Component {
       <div >
         <Row>
           <Col>
-          <h1>Deployed Bundles </h1>
+          <h1>BMQ Clusters</h1>
           </Col>
           <Col align="right" >
             <div >
@@ -311,8 +357,8 @@ class Dashboard extends Component {
                 <i className={isLoading ? 'fa fa-refresh fa-spin' : 'fa fa-refresh'}></i>&nbsp;Refresh
                               </Button>
               &nbsp;
-                              <Button size="lg" color="danger" disabled>
-                <i className="fa fa-bomb"></i>&nbsp;Nuke
+              <Button size="lg" color="success" href={"https://" + this.state.cbUrl +"/sl"} target="_blank">
+                <i className='fa fa-external-link'></i>&nbsp;Cloudbreak
                               </Button>
             </div>
           </Col>
@@ -323,12 +369,56 @@ class Dashboard extends Component {
           </Col>
         </Row>
         <Row>
-          
+        {isLoading ? '' : (<Col xs="12" sm="6" lg="3">
+              <Card className={NifiDashboardClassName(this.state.nifiState)}>
+             
+                <CardBody className="pb-0"> 
+                  <ButtonGroup className="float-right">
+                    <Dropdown id={'local'} isOpen={this.state['local']} toggle={() => { this.setState({ ['local']: !this.state['local'] }); }} >
+                      <DropdownToggle caret className="p-0" color="transparent">
+                        <i className="icon-settings"></i>
+                      </DropdownToggle>
+                      <DropdownMenu right>
+                        {/* <DropdownItem><i className="icon-eyeglass"></i>&nbsp;Details</DropdownItem> */}
+                        <DropdownItem id={'bmq-local'} href={'http://localhost:9090/nifi'} target="_blank"><i className="fa fa-external-link"></i>&nbsp;Go to Nifi</DropdownItem>
+                        <DropdownItem name={'bmq-local'} id={'AVAILABLE'} onClick={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}><i className="fa fa-stop"></i>&nbsp;Stop</DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+                  </ButtonGroup>
+                  <div className="text-value">{'bmq-local'}</div>
+                  <div>{'Status: ' + this.state.nifiState}</div>
+                  <Modal isOpen={this.state['modaldelete'+'bmq-local']}
+                       className={'modal-danger' + this.props.className}>
+                   <ModalBody>
+                  <h3>Stopping Cluster... <i className='fa fa-spinner fa-spin'></i></h3>
+                  </ModalBody>
+                  <ModalFooter>
+                  <Button color="primary" onClick={this.refreshPage.bind(this)}>Refresh Dashboard <i className="fa fa-long-arrow-right"></i></Button>
+                  </ModalFooter>
+                </Modal>
+                  <Modal isOpen={this.state['modal'+'bmq-local']} toggle={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}
+                       className={'modal-danger ' + this.props.className}>
+                  <ModalHeader toggle={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}>Stopping Cluster</ModalHeader>
+                  <ModalBody>
+                  <h3>Are you sure you want to stop this cluster?</h3>
+                  </ModalBody>
+                  <ModalFooter>
+                  <Button color='secondary' onClick={() => { this.setState({ ['modal'+'bmq-local']: !this.state['modal'+'bmq-local'] }); }}><i className="icon-ban"></i>&nbsp; Cancel</Button>
+                    <Button name={'bmq-local'}  color='danger' ><i className="fa fa-stop"></i>&nbsp; Stop Cluster</Button>
+                  </ModalFooter>
+                </Modal>
+                </CardBody>
+                <div className="chart-wrapper" style={{ height: '20px', margin: '20px' }}>
+                  <Progress className={NifiProgressClassName(this.state.nifiState)} color='white' value='100' />
+                </div>
+              </Card>
+            </Col>
+        )}
           {bundleList.map((dashboardItem, index) =>
             <Col xs="12" sm="6" lg="3">
               <Card className={DashboardClassName(dashboardItem.status)}>
-
-                <CardBody className="pb-0">
+             
+                <CardBody className="pb-0"> 
                   <ButtonGroup className="float-right">
                     <Dropdown id={dashboardItem.name} isOpen={this.state[dashboardItem.name]} toggle={() => { this.setState({ [dashboardItem.name]: !this.state[dashboardItem.name] }); }} >
                       <DropdownToggle caret className="p-0" color="transparent">
@@ -336,14 +426,22 @@ class Dashboard extends Component {
                       </DropdownToggle>
                       <DropdownMenu right>
                         {/* <DropdownItem><i className="icon-eyeglass"></i>&nbsp;Details</DropdownItem> */}
-                        <DropdownItem id={dashboardItem.name} onClick={this.goToBundle.bind(this)}><i className="fa fa-building-o"></i>&nbsp;Whoville Bundle</DropdownItem>
-                        <DropdownItem href={dashboardItem.cluster.ambariServerUrl} target="_blank"><i className="fa fa-external-link"></i>&nbsp;Go to Ambari</DropdownItem>
+                        <DropdownItem id={dashboardItem.name} href={'http://' + dashboardItem.cluster.ambariServerIp + ':9995'} target="_blank"><i className="fa fa-external-link"></i>&nbsp;Go to Zeppelin</DropdownItem>
                         <DropdownItem name={dashboardItem.name} id={dashboardItem.status} onClick={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}><i className="fa fa-remove"></i>&nbsp;Terminate</DropdownItem>
                       </DropdownMenu>
                     </Dropdown>
                   </ButtonGroup>
                   <div className="text-value">{dashboardItem.name}</div>
                   <DashboardItemText key={index} dashboardItem={dashboardItem} />
+                  <Modal isOpen={this.state['modaldelete'+dashboardItem.name]}
+                       className={'modal-danger' + this.props.className}>
+                   <ModalBody>
+                  <h3>Sending delete... <i className='fa fa-spinner fa-spin'></i></h3>
+                  </ModalBody>
+                  <ModalFooter>
+                  <Button color="primary" onClick={this.refreshPage.bind(this)}>Refresh Dashboard <i className="fa fa-long-arrow-right"></i></Button>
+                  </ModalFooter>
+                </Modal>
                   <Modal isOpen={this.state['modal'+dashboardItem.name]} toggle={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}
                        className={'modal-'+(dashboardItem.status.toString() === 'AVAILABLE' ? 'danger ' : 'warning ')+' ' + this.props.className}>
                   <ModalHeader toggle={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}>Deleting Stack</ModalHeader>
@@ -352,7 +450,7 @@ class Dashboard extends Component {
                   </ModalBody>
                   <ModalFooter>
                   <Button color='secondary' onClick={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}><i className="icon-ban"></i>&nbsp; Cancel</Button>
-                    <Button id={dashboardItem.name} color={dashboardItem.status.toString() === 'AVAILABLE' ? 'danger' : 'warning'} onClick={this.deleteStack.bind(this)} disabled={!(dashboardItem.status.toString() === 'AVAILABLE')}><i className="fa fa-remove"></i>&nbsp; Terminate Stack</Button>
+                    <Button name={dashboardItem.name}  id={dashboardItem.id} color={dashboardItem.status.toString() === 'AVAILABLE' ? 'danger' : 'warning'} onClick={this.deleteStack.bind(this)} disabled={!(dashboardItem.status.toString() === 'AVAILABLE')}><i className="fa fa-remove"></i>&nbsp; Terminate Stack</Button>
                   </ModalFooter>
                 </Modal>
                 </CardBody>
