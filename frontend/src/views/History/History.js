@@ -394,7 +394,7 @@ class Charts extends Component {
             <Col>
             <Card className="card-accent-warning">
             <CardHeader className="bg-white">
-                <h4>BMQ, Difficulty and Sleep Indexes</h4>
+                <h4>BMQ, Sleep, and Difficulty Indexes</h4>
               </CardHeader>
               <CardBody>
                 <div className="chart-wrapper">
