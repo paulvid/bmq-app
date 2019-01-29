@@ -226,7 +226,7 @@ class Predictions extends Component {
                               </Button>
               &nbsp;
               <Button size="lg" color="primary" onClick={this.startNifi.bind(this)} target="_blank">
-                <i className='fa fa-heartbeat'></i>&nbsp;Launch Model
+                <i className='fa fa-heartbeat'></i>&nbsp;Refresh Model
                               </Button>
             </div>
           </Col>
