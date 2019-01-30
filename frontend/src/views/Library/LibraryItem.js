@@ -297,7 +297,7 @@ class LibraryItem extends Component {
                   </ModalBody>
                   <ModalFooter>
                   <Button color='secondary' onClick={() => { this.setState({ confirmPush: !this.state.confirmPush}); }}><i className="icon-ban"></i>&nbsp; Cancel</Button>
-                  <Button color='success' id={this.state.libraryItem.id} name="Cloudbreak" onClick={this.pushBundle.bind(this)}><i className="fa fa-clou-upload"></i>&nbsp; Push</Button>
+                  <Button color='success' id={this.state.libraryItem.id} name="Cloudbreak" onClick={this.pushBundle.bind(this)}><i className="fa fa-cloud-upload"></i>&nbsp; Push</Button>
                    </ModalFooter>
                 </Modal>
 

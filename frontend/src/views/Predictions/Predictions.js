@@ -257,7 +257,7 @@ class Predictions extends Component {
             <Col>
             <Card className="card-accent-danger">
             <CardHeader className="bg-white">
-                <h4>Activity Distance (Training Plan)</h4>
+                <h4>Training Plan</h4>
               </CardHeader>
               <CardBody>
                 <div className="chart-wrapper">

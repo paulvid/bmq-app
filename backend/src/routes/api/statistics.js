@@ -161,7 +161,7 @@ router.route('/bmq').get((req, res) => {
          '((avg(TOTAL_MINUTES_ASLEEP) / (select max(TOTAL_MINUTES_ASLEEP) from SLEEP_HISTORY))*.4 + (avg(REST_HR) / (select max(REST_HR) from HEALTH_HISTORY))*0.4)*100   as fatigue_index,  '+
          'DATE_FORMAT(date(time_entered), "%Y-%m-%d") as date  '+
          'from ACTIVITY_HISTORY, SLEEP_HISTORY, BMQ_HISTORY, HEALTH_HISTORY '+
-         'where date(time_entered) = date(START_TIME) '+
+         'where date(time_entered) = DATE_SUB(date(START_TIME), INTERVAL 1 DAY) '+
          'and date(time_entered) = SLEEP_HISTORY.diary_day '+
          'and date(time_entered) = HEALTH_HISTORY.diary_day '+
          'group by DATE_FORMAT(date(time_entered), "%Y-%m-%d")  '+

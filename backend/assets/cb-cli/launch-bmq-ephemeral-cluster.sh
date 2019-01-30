@@ -179,7 +179,7 @@ ENCODED_RECIPE=$(base64 poci-bmq-data-science.sh)
 
 
 curl -X DELETE \
-  https://13.52.49.114/cb/api/v1/recipes/user/poci-bmq-data-science \
+  https://13.52.49.114/cb/api/v1/recipes/user/poci-15-bmq-zeppelin-setup \
   -H "Authorization: Bearer $TOKEN" \
   -k
 
@@ -189,7 +189,7 @@ curl -X POST \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
   -d " {
-        \"name\": \"poci-bmq-data-science\",
+        \"name\": \"poci-15-bmq-zeppelin-setup\",
         \"description\": \"Recipe loading BMQ data post BMQ cluster launch\",
         \"recipeType\": \"POST_CLUSTER_INSTALL\",
         \"content\": \"$ENCODED_RECIPE\"
