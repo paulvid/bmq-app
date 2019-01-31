@@ -420,7 +420,7 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-01-31  8:05:51"
+-- Dump completed on 2019-01-31 10:07:25"
 token=$(curl -i --data 'userName=admin&password=Be@stM0de' -X POST http://localhost:9995/api/login | grep JSESSIONID | tail -1 | sed s/Set-Cookie\:\ //g | awk -F";" '{print $1}' | awk -F"=" '{print $2}')
 curl -X PUT http://localhost:9995/api/interpreter/setting/jdbc  -H 'Content-Type: application/json'   -b "JSESSIONID="$token"; Path=/; HttpOnly"   -d '{
   "properties": {
@@ -569,3 +569,5 @@ curl -X PUT http://localhost:9995/api/interpreter/setting/jdbc  -H 'Content-Type
         }
 }' 
 curl -X PUT http://localhost:9995/api/interpreter/setting/restart/jdbc  -H 'Content-Type: application/json'   -b "JSESSIONID="$token"; Path=/; HttpOnly"
+wget https://raw.githubusercontent.com/paulvid/bmq-app/master/backend/assets/zeppelin-notes/BMQ_Prediction.json
+curl -X POST http://localhost:9995/api/notebook/import -H 'Content-Type: application/json' -b "JSESSIONID="$token"; Path=/; HttpOnly" -d @'BMQ_Prediction.json'
