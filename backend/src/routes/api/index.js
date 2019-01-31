@@ -13,5 +13,6 @@ router.use('/generator', require('./generator'));
 router.use('/cloudbreak', require('./cloudbreak'));
 router.use('/statistics', require('./statistics'));
 router.use('/nifi', require('./nifi'));
+router.use('/zeppelin', require('./zeppelin'));
 
 module.exports = router;

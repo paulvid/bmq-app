@@ -91,13 +91,13 @@
         "enableGplRepo": false,
         "verify": false,
         "repositoryVersion": "3.1.0.0-78",
-        "versionDefinitionFileUrl": "http://public-repo-1.hortonworks.com/HDP/centos7/3.x/updates/3.1.0.0/HDP-3.1.0.0-78.xml",
+        "versionDefinitionFileUrl": "http://s3.amazonaws.com/dev.hortonworks.com/HDP/centos7/3.x/BUILDS/3.1.0.0-78/HDP-3.1.0.0-78.xml",
         "mpacks": []
       },
       "ambariRepoDetailsJson": {
         "version": "2.7.3.0",
-        "baseUrl": "http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.7.3.0",
-        "gpgKeyUrl": "http://public-repo-1.hortonworks.com/ambari/centos7/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins"
+        "baseUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139",
+        "gpgKeyUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins"
       }
     }
   }

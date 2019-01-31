@@ -23,7 +23,7 @@ class History extends Component {
           bmqChart: {},
           sleepChart: {},
           activityChart: {},
-          difficultyChart: {},
+          intensityChart: {},
           summaryChart: {},
           bmqAvgChart: {},
           hrChart: {},
@@ -72,6 +72,11 @@ class History extends Component {
         }
 
 
+        // Generating indexes
+        var callGenIndex = await fetch('http://localhost:4000/api/statistics/generate/indexes')
+        var genRes = await callGenIndex.json()
+
+
         // Loading BMQ AVG
 
         var callSummary= await fetch('http://localhost:4000/api/statistics/summary')
@@ -80,12 +85,12 @@ class History extends Component {
         // Creating Label and Data arrays
         var retrievedLabels = [];
         var retrievedBMQ = [];
-        var retrievedDifficulty = [];
+        var retrievedIntensity = [];
         var retrievedSleep = [];
         for(var key in summaryHist) {
           retrievedLabels.push(summaryHist[key].date); 
           retrievedBMQ.push(summaryHist[key].bmq_index); 
-          retrievedDifficulty.push(summaryHist[key].difficulty_index); 
+          retrievedIntensity.push(summaryHist[key].intensity_index); 
           retrievedSleep.push(summaryHist[key].fatigue_index); 
         }
         
@@ -136,7 +141,7 @@ class History extends Component {
                     data: retrievedSleep,
                   },
                   {
-                    label: 'Difficulty Index',
+                    label: 'Intensity Index',
                     fill: true,
                     lineTension: 0.3,
                     backgroundColor: 'rgba(255,131,7, 1)',
@@ -154,7 +159,7 @@ class History extends Component {
                     pointHoverBorderWidth: 2,
                     pointRadius: 1,
                     pointHitRadius: 10,
-                    data: retrievedDifficulty,
+                    data: retrievedIntensity,
                   },
               ],
             }})
@@ -410,23 +415,23 @@ class History extends Component {
                 ],
               }})
 
-              var callDifficulty = await fetch('http://localhost:4000/api/statistics/difficulty')
-              var difficultyHist = await callDifficulty.json()
+              var callIntensity = await fetch('http://localhost:4000/api/statistics/intensity')
+              var intensityHist = await callIntensity.json()
         
               // Creating Label and Data arrays
               var retrievedLabels = [];
-              var retrievedDifficulty = [];
-              for(var key in difficultyHist) {
-                retrievedLabels.push(difficultyHist[key].date); 
-                retrievedDifficulty.push(difficultyHist[key].difficulty_index); 
+              var retrievedIntensity = [];
+              for(var key in intensityHist) {
+                retrievedLabels.push(intensityHist[key].date); 
+                retrievedIntensity.push(intensityHist[key].intensity_index); 
               }
               
         
-                this.setState({difficultyChart :{
+                this.setState({intensityChart :{
                     labels: retrievedLabels,
                     datasets: [
                       {
-                        label: 'Difficulty Index',
+                        label: 'Intensity Index',
                         fill: true,
                         lineTension: 0.3,
                         backgroundColor: 'rgba(248, 108, 107,1)',
@@ -444,7 +449,7 @@ class History extends Component {
                         pointHoverBorderWidth: 2,
                         pointRadius: 1,
                         pointHitRadius: 10,
-                        data: retrievedDifficulty,
+                        data: retrievedIntensity,
                       },
                     ],
                   }})
@@ -563,7 +568,7 @@ class History extends Component {
             <Col>
             <Card className="card-accent-warning">
             <CardHeader className="bg-white">
-                <h4>BMQ, Fatigue, and Difficulty Indexes</h4>
+                <h4>BMQ, Fatigue, and Intensity (previous day) Indexes</h4>
               </CardHeader>
               <CardBody>
                 <div className="chart-wrapper">
@@ -643,11 +648,11 @@ class History extends Component {
             <Col xs={2} md={6}>
             <Card className="card-accent-danger">
             <CardHeader className="bg-white">
-                <h4>Difficulty Index</h4>
+                <h4>Intensity Index</h4>
               </CardHeader>
               <CardBody>
                 <div className="chart-wrapper">
-                  <Bar data={this.state.difficultyChart} options={options} height='300px'  />
+                  <Bar data={this.state.intensityChart} options={options} height='300px'  />
                 </div>
               </CardBody>
             </Card>

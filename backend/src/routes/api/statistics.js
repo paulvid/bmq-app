@@ -49,7 +49,7 @@ router.route('/bmq').get((req, res) => {
   router.route('/prediction/results').get((req, res) => {
 
     Promise.using(getSqlConnection(), function(connection) {
-         connection.query('select DATE_FORMAT(prediction_date, "%Y-%m-%d") as prediction_date, estimated_difficulty_index, estimated_fatigue_index, predicted_bmq from BMQ_PREDICTIONS').then(function(rows) {
+         connection.query('select DATE_FORMAT(prediction_date, "%Y-%m-%d") as prediction_date, estimated_intensity_index, estimated_fatigue_index, predicted_bmq from BMQ_PREDICTIONS').then(function(rows) {
             res.json(rows);
         }).catch(function(error) {
           console.log(error);
@@ -61,7 +61,7 @@ router.route('/bmq').get((req, res) => {
   router.route('/prediction/training').get((req, res) => {
 
     Promise.using(getSqlConnection(), function(connection) {
-         connection.query('select DATE_FORMAT(training_date, "%Y-%m-%d") as training_date, distance, estimated_difficulty_index from TRAINING_PLAN').then(function(rows) {
+         connection.query('select DATE_FORMAT(training_date, "%Y-%m-%d") as training_date, distance, estimated_intensity_index from TRAINING_PLAN').then(function(rows) {
             res.json(rows);
         }).catch(function(error) {
           console.log(error);
@@ -139,12 +139,46 @@ router.route('/bmq').get((req, res) => {
     })
     
   });
-  router.route('/difficulty').get((req, res) => {
+
+  router.route('/generate/parameters').post((req, res) => {
 
     Promise.using(getSqlConnection(), function(connection) {
-         connection.query('select ( (((select sum(avg_pace) from ACTIVITY_HISTORY)/avg(avg_pace))*0.6) + ((sum(distance) / (select max(distance) from ACTIVITY_HISTORY))*0.3) + ((sum(elevation_gain) / (select max(elevation_gain) from ACTIVITY_HISTORY))*0.1) ) as difficulty_index, DATE_FORMAT(date(start_time), "%Y-%m-%d") as date from ACTIVITY_HISTORY ' +
-         'group by DATE_FORMAT(date(start_time), "%Y-%m-%d") ' +
-         'order by DATE_FORMAT(date(start_time), "%Y-%m-%d")  asc ').then(function(rows) {
+         connection.query('truncate table PREDICTION_PARAMETERS').then(function(rows) {
+          console.log("Table PREDICTION_PARAMETERS truncated!");
+        }).catch(function(error) {
+          console.log(error);
+        });
+    })
+
+    Promise.using(getSqlConnection(), function(connection) {
+      connection.query('insert into PREDICTION_PARAMETERS (last_updated, sleep_hours, rest_hr) values ($1, $2, $3)', [req.body.last_updated, req.body.sleep_hours, req.body.rest_hr]).then(function(rows) {
+       console.log("Table PREDICTION_PARAMETERS truncated!");
+     }).catch(function(error) {
+       console.log(error);
+     });
+ })
+ 
+    
+  });
+
+
+  router.route('/generate/indexes').get((req, res) => {
+
+    Promise.using(getSqlConnection(), function(connection) {
+         connection.query('CALL CreateIndexes()').then(function(rows) {
+            res.json("Index tables created!");
+        }).catch(function(error) {
+          console.log(error);
+        });
+    })
+    
+  });
+
+
+  router.route('/intensity').get((req, res) => {
+
+    Promise.using(getSqlConnection(), function(connection) {
+         connection.query('select * from intensity_index').then(function(rows) {
             res.json(rows);
         }).catch(function(error) {
           console.log(error);
@@ -156,16 +190,10 @@ router.route('/bmq').get((req, res) => {
   router.route('/summary').get((req, res) => {
 
     Promise.using(getSqlConnection(), function(connection) {
-         connection.query('select ( (((select sum(avg_pace) from ACTIVITY_HISTORY)/avg(avg_pace))*0.6) + ((sum(distance) / (select max(distance) from ACTIVITY_HISTORY))*0.3) + ((sum(elevation_gain) / (select max(elevation_gain) from ACTIVITY_HISTORY))*0.1) ) as difficulty_index, '+ 
-         '(avg(bmq) / (select max(bmq) from BMQ_HISTORY))*100 as bmq_index, '+
-         '((avg(TOTAL_MINUTES_ASLEEP) / (select max(TOTAL_MINUTES_ASLEEP) from SLEEP_HISTORY))*.4 + (avg(REST_HR) / (select max(REST_HR) from HEALTH_HISTORY))*0.4)*100   as fatigue_index,  '+
-         'DATE_FORMAT(date(time_entered), "%Y-%m-%d") as date  '+
-         'from ACTIVITY_HISTORY, SLEEP_HISTORY, BMQ_HISTORY, HEALTH_HISTORY '+
-         'where date(time_entered) = DATE_SUB(date(START_TIME), INTERVAL 1 DAY) '+
-         'and date(time_entered) = SLEEP_HISTORY.diary_day '+
-         'and date(time_entered) = HEALTH_HISTORY.diary_day '+
-         'group by DATE_FORMAT(date(time_entered), "%Y-%m-%d")  '+
-         'order by DATE_FORMAT(date(time_entered), "%Y-%m-%d") asc ').then(function(rows) {
+         connection.query('select bmq_index.date, bmq_index, fatigue_index, intensity_index from '+
+         'bmq_index, fatigue_index, intensity_index '+
+         'where bmq_index.date = fatigue_index.date '+
+         'and date_sub(bmq_index.date, INTERVAL 1 DAY) = intensity_index.date').then(function(rows) {
             res.json(rows);
         }).catch(function(error) {
           console.log(error);
