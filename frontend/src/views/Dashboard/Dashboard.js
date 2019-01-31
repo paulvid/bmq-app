@@ -18,7 +18,7 @@ function ProgressClassName(state) {
 
   if (state.toString() === "AVAILABLE") {
     class_name = "progress-xs my-3 bg-info"
-  } else if ((state.toString() === "UPDATE_IN_PROGRESS") || (state.toString() === "CREATE_IN_PROGRESS") || (state.toString() === "START_IN_PROGRESS")) {
+  } else if ((state.toString() === "UPDATE_IN_PROGRESS") || (state.toString() === "CREATE_IN_PROGRESS") || (state.toString() === "START_IN_PROGRESS") || (state.toString() === "REQUESTED" )) {
     class_name = "progress-xs my-3 bg-light-blue"
   } else if ((state.toString() === "CREATE_FAILED") || (state.toString() === "UPDATE_FAILED")) {
     class_name = "progress-xs my-3 bg-red"
@@ -66,9 +66,9 @@ function NifiDashboardClassName(nifiState) {
 function DashboardClassName(state) {
   var class_name = "text-white bg-primary border-primary"
 
-  if (state.toString() === "AVAILABLE") {
+  if (state.toString() === "AVAILABLE"  ) {
     class_name = "text-white bg-success border-success"
-  } else if ((state.toString() === "UPDATE_IN_PROGRESS") || (state.toString() === "CREATE_IN_PROGRESS") || (state.toString() === "START_IN_PROGRESS")) {
+  } else if ((state.toString() === "UPDATE_IN_PROGRESS") || (state.toString() === "CREATE_IN_PROGRESS") || (state.toString() === "START_IN_PROGRESS") || (state.toString() === "REQUESTED" )) {
     class_name = "text-white bg-blue border-blue"
   } else if ((state.toString() === "CREATE_FAILED") || (state.toString() === "UPDATE_FAILED")) {
     class_name = "text-white bg-danger border-danger"
@@ -86,12 +86,12 @@ function DashboardClassName(state) {
 
 function DashboardItemText(props) {
   const dashboardItem = props.dashboardItem
-  const state = dashboardItem.status
+  const state = dashboardItem.cluster.status
   var widget_text = "No creation info"
 
   if (state.toString() === "AVAILABLE") {
     widget_text = "Status: " + state;
-  } else if ((state.toString() === "UPDATE_IN_PROGRESS") || (state.toString() === "CREATE_IN_PROGRESS") || (state.toString() === "START_IN_PROGRESS") || (state.toString() === "DELETE_IN_PROGRESS")) {
+  } else if ((state.toString() === "UPDATE_IN_PROGRESS") || (state.toString() === "CREATE_IN_PROGRESS") || (state.toString() === "START_IN_PROGRESS") || (state.toString() === "DELETE_IN_PROGRESS" ) || (state.toString() === "REQUESTED" )) {
     widget_text = "Status: " + state;
   } else if ((state.toString() === "CREATE_FAILED") || (state.toString() === "UPDATE_FAILED")) {
     //const date = dashboardItem.fail_date
@@ -369,7 +369,7 @@ class Dashboard extends Component {
     const isLoading = this.state.loading;
     //const dashboardItemList = dashboardData.filter((dashboardItem) => dashboardItem.id)
     const bundleList = this.state.clusterData.filter((bundle) => bundle.name);
-
+    
     return (
       <div >
         <Row>
@@ -422,9 +422,15 @@ class Dashboard extends Component {
               </Card>
             </Col>
         )}
-          {bundleList.map((dashboardItem, index) =>
-            <Col xs="12" sm="6" lg="3">
-              <Card className={DashboardClassName(dashboardItem.status)}>
+          {bundleList.map((dashboardItem, index) => {
+
+          if (dashboardItem.status.toString() === 'AVAILABLE'){
+            var theStatus = dashboardItem.cluster.status
+          } else {
+            var theStatus =  dashboardItem.status
+          }
+            return <Col xs="12" sm="6" lg="3">
+              <Card className={DashboardClassName(theStatus)}>
              
                 <CardBody className="pb-0"> 
                   <ButtonGroup className="float-right">
@@ -435,7 +441,7 @@ class Dashboard extends Component {
                       <DropdownMenu right>
                         {/* <DropdownItem><i className="icon-eyeglass"></i>&nbsp;Details</DropdownItem> */}
                         <DropdownItem id={dashboardItem.name} href={'http://' + dashboardItem.cluster.ambariServerIp + ':9995'} target="_blank"><i className="fa fa-external-link"></i>&nbsp;Go to Zeppelin</DropdownItem>
-                        <DropdownItem name={dashboardItem.name} id={dashboardItem.status} onClick={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}><i className="fa fa-remove"></i>&nbsp;Terminate</DropdownItem>
+                        <DropdownItem name={dashboardItem.name} id={theStatus} onClick={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}><i className="fa fa-remove"></i>&nbsp;Terminate</DropdownItem>
                       </DropdownMenu>
                     </Dropdown>
                   </ButtonGroup>
@@ -451,23 +457,23 @@ class Dashboard extends Component {
                   </ModalFooter>
                 </Modal>
                   <Modal isOpen={this.state['modal'+dashboardItem.name]} toggle={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}
-                       className={'modal-'+(dashboardItem.status.toString() === 'AVAILABLE' ? 'danger ' : 'warning ')+' ' + this.props.className}>
+                       className={'modal-'+((theStatus.toString() === 'AVAILABLE' || theStatus.toString() === 'CREATE_FAILED') ? 'danger ' : 'warning ')+' ' + this.props.className}>
                   <ModalHeader toggle={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}>Deleting Stack</ModalHeader>
                   <ModalBody>
-                  <h3>{dashboardItem.status.toString() === 'AVAILABLE' ? 'Are you sure you want to terminate this stack?' : "You can only delete stacks when they are in status AVAILABLE"} </h3>
+                  <h3>{(theStatus.toString() === 'AVAILABLE' || theStatus.toString() === 'CREATE_FAILED') ? 'Are you sure you want to terminate this stack?' : "You can only delete stacks when they are in status AVAILABLE or CREATE_FAILED"} </h3>
                   </ModalBody>
                   <ModalFooter>
                   <Button color='secondary' onClick={() => { this.setState({ ['modal'+dashboardItem.name]: !this.state['modal'+dashboardItem.name] }); }}><i className="icon-ban"></i>&nbsp; Cancel</Button>
-                    <Button name={dashboardItem.name}  id={dashboardItem.id} color={dashboardItem.status.toString() === 'AVAILABLE' ? 'danger' : 'warning'} onClick={this.deleteStack.bind(this)} disabled={!(dashboardItem.status.toString() === 'AVAILABLE')}><i className="fa fa-remove"></i>&nbsp; Terminate Stack</Button>
+                    <Button name={dashboardItem.name}  id={dashboardItem.id} color={(theStatus.toString() === 'AVAILABLE' || theStatus.toString() === 'CREATE_FAILED') ? 'danger' : 'warning'} onClick={this.deleteStack.bind(this)} disabled={!(theStatus.toString() === 'AVAILABLE' || theStatus.toString() === 'CREATE_FAILED') }><i className="fa fa-remove"></i>&nbsp; Terminate Stack</Button>
                   </ModalFooter>
                 </Modal>
                 </CardBody>
                 <div className="chart-wrapper" style={{ height: '20px', margin: '20px' }}>
-                  <Progress className={ProgressClassName(dashboardItem.status)} color='white' value={dashboardItem.progress} value={ProgressValue(dashboardItem.status)} />
+                  <Progress className={ProgressClassName(theStatus)} color='white' value={dashboardItem.progress} value={ProgressValue(theStatus)} />
                 </div>
               </Card>
             </Col>
-
+          }
           )}
 
 
