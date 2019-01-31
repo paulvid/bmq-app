@@ -168,8 +168,8 @@ echo "curl -X PUT http://localhost:9995/api/interpreter/setting/jdbc \
 
 echo "curl -X PUT http://localhost:9995/api/interpreter/setting/restart/jdbc  -H 'Content-Type: application/json'   -b \"JSESSIONID=\"\$token\"; Path=/; HttpOnly\"" >> poci-bmq-data-science.sh
 
-echo "wget " >> poci-bmq-data-science.sh
-echo "curl -X POST http://localhost:9995/api/notebook/import -H 'Content-Type: application/json' -b \"JSESSIONID=\"$token\"; Path=/; HttpOnly\" -d @'BMQ_Predictions.json'" >> poci-bmq-data-science.sh
+echo "wget https://raw.githubusercontent.com/paulvid/bmq-app/master/backend/assets/zeppelin-notes/BMQ_Prediction.json" >> poci-bmq-data-science.sh
+echo "curl -X POST http://localhost:9995/api/notebook/import -H 'Content-Type: application/json' -b \"JSESSIONID=\"\$token\"; Path=/; HttpOnly\" -d @'BMQ_Prediction.json'" >> poci-bmq-data-science.sh
 
 
 ##################################
