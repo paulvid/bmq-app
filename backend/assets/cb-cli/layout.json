@@ -1,0 +1,15 @@
+{
+	"name": "BMQ Ephemeral Data Science",
+	"description": "Bundle creating a single node HDP 3.1 for Beast Mode Quotient Calculation",
+	"infra": {
+		"ambariRepo": {
+			"version": "2.7.3.0",
+			"baseUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139",
+			"gpgKeyUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins"
+		},
+		"stackRepo": {
+			"version": "3.1.0.0-78",
+			"baseUrl": "http://public-repo-1.hortonworks.com/HDP/centos7/3.x/updates/3.1.0.0/HDP-3.1.0.0-78.xml"
+		}
+	}
+}
