@@ -94,7 +94,7 @@ class Predictions extends Component {
     })
     var fetchedClusterData = await initClusterData.json()
 
-    this.setState({ zp_url: fetchedClusterData[0].cluster.ambariServerIp});
+    this.setState({ zp_url: fetchedClusterData[1].cluster.ambariServerIp});
 
     // Then, we update the model paramters
     var callDelParam = await fetch('http://localhost:4000/api/zeppelin/parameters/delete', {

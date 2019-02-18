@@ -176,19 +176,19 @@ echo "curl -X POST http://localhost:9995/api/notebook/import -H 'Content-Type: a
 # 2. Adding recipe to cloudbreak #
 ##################################
 
-TOKEN=$(curl -k -iX POST -H "accept: application/x-www-form-urlencoded" -d 'credentials={"username":"admin@example.com","password":"admin-password1"}' "https://13.52.49.114/identity/oauth/authorize?response_type=token&client_id=cloudbreak_shell&scope.0=openid&source=login&redirect_uri=http://cloudbreak.shell" | grep location | cut -d'=' -f 3 | cut -d'&' -f 1)
+TOKEN=$(curl -k -iX POST -H "accept: application/x-www-form-urlencoded" -d 'credentials={"username":"admin@example.com","password":"admin-password1"}' "https://13.52.142.174/identity/oauth/authorize?response_type=token&client_id=cloudbreak_shell&scope.0=openid&source=login&redirect_uri=http://cloudbreak.shell" | grep location | cut -d'=' -f 3 | cut -d'&' -f 1)
 echo $TOKEN
 
 ENCODED_RECIPE=$(base64 poci-bmq-data-science.sh)
 
 
 curl -X DELETE \
-  https://13.52.49.114/cb/api/v1/recipes/user/poci-15-bmq-zeppelin-setup \
+  https://13.52.142.174/cb/api/v1/recipes/user/poci-15-bmq-zeppelin-setup \
   -H "Authorization: Bearer $TOKEN" \
   -k
 
 curl -X POST \
-  https://13.52.49.114/cb/api/v1/recipes/user \
+  https://13.52.142.174/cb/api/v1/recipes/user \
   -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache' \
@@ -203,7 +203,7 @@ curl -X POST \
 ########################
 # 3. Launching cluster #
 ########################
-cb configure --server https://13.52.49.114 --username admin@example.com --password admin-password1
+cb configure --server https://13.52.142.174 --username admin@example.com --password admin-password1
 cb cluster list
 cb cluster create --cli-input-json tp-bmq-data-science.json --name bmq-data-science-$(date +%s)
 

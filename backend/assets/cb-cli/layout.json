@@ -1,15 +1,53 @@
 {
-	"name": "BMQ Ephemeral Data Science",
-	"description": "Bundle creating a single node HDP 3.1 for Beast Mode Quotient Calculation",
+	"desc": "Bundle creating a single node HDP 3.1 cluster with pre-loaded Data Science Workshop Notebooks",
+	"deploywait": "1800",
+	"purge": "true",
+	"priority": "",
+	"seq:": {
+	  "prep_deps": [
+		"bp-data-science-workshop.json"
+	  ],
+	  "prep_spec": [
+		"bp-data-science-workshop.json"
+	  ],
+	  "do_builds": [
+		"bp-data-science-workshop.json"
+	  ]
+	},
 	"infra": {
-		"ambariRepo": {
-			"version": "2.7.3.0",
-			"baseUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139",
-			"gpgKeyUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins"
-		},
-		"stackRepo": {
-			"version": "3.1.0.0-78",
-			"baseUrl": "http://public-repo-1.hortonworks.com/HDP/centos7/3.x/updates/3.1.0.0/HDP-3.1.0.0-78.xml"
+	  "ambariRepo": {
+		"version": "2.7.3.0",
+		"baseUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139",
+		"gpgKeyUrl": "http://s3.amazonaws.com/dev.hortonworks.com/ambari/centos7/2.x/BUILDS/2.7.3.0-139/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins"
+	  },
+	  "stackRepo": {
+		"version": "3.1.0.0-78",
+		"baseUrl": "http://public-repo-1.hortonworks.com/HDP/centos7/3.x/updates/3.1.0.0/HDP-3.1.0.0-78.xml"
+	  }
+	},
+	"blueprint": {
+	  "name": "bp-data-science-workshop.json"
+	},
+	"recipe": [
+	  {
+		"name": "pras-dsw-metastore-setup.sh",
+		"typ": "PRE_AMBARI_START"
+	  },
+	  {
+		"name": "poci-dsw-post-cluster-setup.sh",
+		"typ": "POST_CLUSTER_INSTALL"
+	  }
+	],
+	"group": [
+	  {
+		"master": {
+		  "recipe": [
+			"pras-dsw-metastore-setup.sh",
+			"poci-dsw-post-cluster-setup.sh"
+		  ],
+		  "type": "GATEWAY",
+		  "machine": "8x28-8x32"
 		}
-	}
-}
+	  }
+	]
+  }

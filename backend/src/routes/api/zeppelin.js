@@ -176,8 +176,9 @@ res.json("HORRAY")
 
 router.route('/parameters/delete').post((req2, res) => {
 
+// console.log("URL = " + req2.body.zp_url)
     var mysql = require('promise-mysql');
- 
+    
         var pool = mysql.createPool({
         host: req2.body.zp_url,
         user: 'bmq_user',
